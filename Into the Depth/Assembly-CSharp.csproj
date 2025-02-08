@@ -55,9 +55,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\AddUserCheck.cs" />
+     <Compile Include="Assets\Scripts\PasswordToggle.cs" />
      <Compile Include="Assets\Scripts\Quit.cs" />
      <Compile Include="Assets\Scripts\SceneTransition.cs" />
      <Compile Include="Assets\Scripts\SqlConnect.cs" />
+     <Compile Include="Assets\Scripts\UserSession.cs" />
+     <Compile Include="Assets\Scripts\UsernameInputValidator.cs" />
+     <Compile Include="Assets\Scripts\ValidatePassword.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
