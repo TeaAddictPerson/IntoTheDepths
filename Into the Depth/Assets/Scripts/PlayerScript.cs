@@ -10,62 +10,86 @@ public class PlayerScript : MonoBehaviour
     private Animator animator;
 
     public Transform waterSurfacePoint; 
-    public Transform jumpCheckPoint; 
-    public LayerMask solidLayer; 
+    public Transform jumpCheckPoint;
+    public LayerMask raftLayer; 
 
     private bool isOnSurface;
     private bool isJumping;
     private bool isOnRaft; 
-    private float defaultGravityScale;
+    private float defaultGravityScale = 2f;
+    private float underwaterGravityScale = 0f; 
 
     public float jumpForce = 10f; 
+
+    private bool FacingRight = true; 
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        defaultGravityScale = rb.gravityScale; 
+        rb.gravityScale = defaultGravityScale; 
     }
 
     void Update()
     {
-
         direction.x = Input.GetAxisRaw("Horizontal");
         direction.y = Input.GetAxisRaw("Vertical");
 
-      
         isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
 
-       
-        if (isOnSurface && direction.y > 0)
+
+        bool isInWater = transform.position.y <= waterSurfacePoint.position.y;
+
+
+        if (isOnSurface && direction.y > 0 && !isJumping)
         {
             direction.y = 0;
         }
 
-      
-        if (isOnRaft)
+
+        if (transform.position.y > waterSurfacePoint.position.y)
         {
-            rb.gravityScale = defaultGravityScale; 
-            direction.y = 0; 
+ 
+            rb.gravityScale = defaultGravityScale;
         }
         else
         {
-            rb.gravityScale = isOnSurface ? defaultGravityScale : 0;
+     
+            rb.gravityScale = underwaterGravityScale; 
         }
 
-        
-        if (Input.GetKeyDown(KeyCode.Space) && (isOnRaft || isOnSurface))
+
+        bool canJump = Physics2D.OverlapCircle(jumpCheckPoint.position, 0.1f, raftLayer); 
+
+
+        if (Input.GetKeyDown(KeyCode.Space) && (isOnRaft || isOnSurface) && canJump)
         {
             StartCoroutine(Jump());
         }
 
-     
+  
+        if (isInWater && !isJumping)
+        {
+            animator.Play("PlayerIdle");
+        }
+
+    
+        if (direction.x < 0 && FacingRight)
+        {
+            Flip();
+        }
+        else if (direction.x > 0 && !FacingRight)
+        {
+            Flip();
+        }
+
+
         animator.SetBool("isOnSurface", isOnSurface);
     }
 
     void FixedUpdate()
     {
-        if (!isJumping)
+        if (!isJumping) 
         {
             rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
         }
@@ -75,7 +99,7 @@ public class PlayerScript : MonoBehaviour
     {
         isJumping = true;
         animator.Play("PlayerJump");
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce); 
+        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         yield return new WaitForSeconds(0.5f); 
         isJumping = false;
     }
@@ -85,6 +109,11 @@ public class PlayerScript : MonoBehaviour
         if (collision.gameObject.CompareTag("Raft")) 
         {
             isOnRaft = true;
+            
+            if (!isJumping)
+            {
+                animator.Play("PlayerIdle");
+            }
         }
     }
 
@@ -93,6 +122,15 @@ public class PlayerScript : MonoBehaviour
         if (collision.gameObject.CompareTag("Raft")) 
         {
             isOnRaft = false;
+            rb.gravityScale = defaultGravityScale;
         }
+    }
+
+    private void Flip()
+    {
+        FacingRight = !FacingRight; 
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1; 
+        transform.localScale = theScale;
     }
 }
