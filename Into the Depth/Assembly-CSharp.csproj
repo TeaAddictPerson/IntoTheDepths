@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Quit.cs" />
     <Compile Include="Assets\Scripts\SceneTransition.cs" />
     <Compile Include="Assets\Scripts\SqlConnect.cs" />
+    <Compile Include="Assets\Scripts\SwordFish.cs" />
     <Compile Include="Assets\Scripts\UserSession.cs" />
     <Compile Include="Assets\Scripts\UsernameInputValidator.cs" />
     <Compile Include="Assets\Scripts\ValidatePassword.cs" />

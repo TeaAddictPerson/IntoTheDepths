@@ -1,6 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using TMPro;
+using Mono.Data.Sqlite;
+using System.Data;
+using System.IO;
+using System;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -8,6 +13,14 @@ public class PlayerScript : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 direction;
     private Animator animator;
+
+    [Header("Здоровье")]
+    public int maxHealth = 15;
+    public int currentHealth;
+    public bool isDead = false;
+
+    public Image Bar;
+
 
     public Transform waterSurfacePoint;
     public Transform jumpCheckPoint;
@@ -25,6 +38,7 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         rb.gravityScale = defaultGravityScale;
@@ -32,6 +46,8 @@ public class PlayerScript : MonoBehaviour
 
     void Update()
     {
+        if (isDead) return;
+
         direction.x = Input.GetAxisRaw("Horizontal");
         direction.y = Input.GetAxisRaw("Vertical");
 
@@ -96,11 +112,69 @@ public class PlayerScript : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!isDead && !isJumping)
+        {
+            rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
+        }
+
         if (!isJumping)
         {
             rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
         }
     }
+
+    public void TakeDamage(int damage)
+    {
+        Debug.Log($"Получен урон: {damage}. текущее хп: {currentHealth}");
+
+        if (isDead)
+        {
+            Debug.Log("Дамаг не прошел, игрок умер или в инвизе");
+            return;
+        }
+
+        currentHealth -= damage;
+        Bar.fillAmount = (float)currentHealth / maxHealth;
+
+        Debug.Log($"Хп после урона: {currentHealth}");
+
+        if (direction.y > 0)
+        {
+            Debug.Log("Запуск анимации: HurtSwimUp");
+            animator.SetTrigger("HurtSwimUp");
+        }
+        else if (direction.y < 0)
+        {
+            Debug.Log("Запуск анимации: HurtSwimDown");
+            animator.SetTrigger("HurtSwimDown");
+        }
+        else if (direction.x != 0)
+        {
+            Debug.Log("Запуск анимации: HurtSwim");
+            animator.SetTrigger("HurtSwim");
+        }
+        else
+        {
+            Debug.Log("Запуск анимации: HurtIdle");
+            animator.SetTrigger("HurtIdle");
+        }
+
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+
+    public void Die()
+    {
+        isDead = true;
+        animator.SetBool("IsDead", true);
+        rb.velocity = Vector2.zero;
+        moveSpeed = 0; 
+    }
+
 
     private IEnumerator Jump()
     {
