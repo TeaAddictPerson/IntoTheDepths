@@ -184,42 +184,100 @@ public void TakeDamage(int damage)
     }
 }
 
-void Attack()
- {
-   
-    if (direction.y > 0) 
+    void Attack()
     {
-        animator.SetTrigger("AttackSwimUp"); 
-    }
-    else if (direction.y < 0) 
-    {
-        animator.SetTrigger("AttackSwimDown"); 
-    }
-    else if (direction.x != 0) 
-    {
-        animator.SetTrigger("AttackSwim");  
-    }
-    else 
-    {
-        animator.SetTrigger("AttackIdle");  
+        if (Time.time < nextAttackTime) return;
+
+        nextAttackTime = Time.time + 1f / attackRate;
+        animator.SetTrigger("Attack");
+
+        StartCoroutine(PlayAttackAnimation());
     }
 
-   
-    Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, AttackRange, enemyLayers);
+    private bool isAttacking = false; 
+    private bool wasAttacking = false; 
 
-    foreach (Collider2D enemy in hitEnemies)
+    private IEnumerator PlayAttackAnimation()
     {
-       IDamageable damageable = enemy.GetComponent<IDamageable>();
-        if (damageable != null)
+        if (isAttacking) yield break; 
+        isAttacking = true; 
+        wasAttacking = true; 
+
+        yield return null;
+
+        string attackAnimation;
+
+        if (direction.y > 0)
         {
-            damageable.TakeDamage(attackDamage);
+            attackAnimation = "PlayerAttackSwimUp";
+        }
+        else if (direction.y < 0)
+        {
+            attackAnimation = "PlayerAttackSwimDown";
+        }
+        else if (direction.x != 0)
+        {
+            attackAnimation = "PlayerAttackSwim";
+        }
+        else
+        {
+            attackAnimation = "PlayerAttackIdle";
+        }
+
+        animator.Play(attackAnimation);
+
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, AttackRange, enemyLayers);
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            IDamageable damageable = enemy.GetComponent<IDamageable>();
+            if (damageable != null)
+            {
+                damageable.TakeDamage(attackDamage);
+            }
+        }
+
+
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+        isAttacking = false; 
+
+        ResetToMovementState();
+    }
+
+    private void ResetToMovementState()
+    {
+        if (isAttacking) return; 
+
+        if (direction.magnitude > 0.1f) 
+        {
+            wasAttacking = false; 
+        }
+
+        if (wasAttacking)
+        {
+            wasAttacking = false; 
+            return;
+        }
+
+        if (direction.y > 0)
+        {
+            animator.Play("PlayerSwimUp");
+        }
+        else if (direction.y < 0)
+        {
+            animator.Play("PlayerSwimDown");
+        }
+        else if (direction.x != 0)
+        {
+            animator.Play("PlayerSwim");
+        }
+        else
+        {
+            animator.Play("PlayerIdle");
         }
     }
-}
 
-
-
-private IEnumerator ResetHurtAnimation()
+    private IEnumerator ResetHurtAnimation()
 {
     yield return new WaitForSeconds(0.5f);
     animator.ResetTrigger("HurtSwimUp");
