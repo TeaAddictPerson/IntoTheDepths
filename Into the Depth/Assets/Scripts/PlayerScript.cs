@@ -21,6 +21,13 @@ public class PlayerScript : MonoBehaviour
 
     public Image Bar;
 
+    [Header("Атака")]
+    public Transform attackPoint;
+    public float AttackRange = 0.5f;
+    public int attackDamage = 10;
+    public LayerMask enemyLayers;
+    public float attackRate = 2f;
+    private float nextAttackTime = 0f;
 
     public Transform waterSurfacePoint;
     public Transform jumpCheckPoint;
@@ -44,71 +51,80 @@ public class PlayerScript : MonoBehaviour
         rb.gravityScale = defaultGravityScale;
     }
 
-    void Update()
+void Update()
+{
+    if (isDead) return;
+
+    direction.x = Input.GetAxisRaw("Horizontal");
+    direction.y = Input.GetAxisRaw("Vertical");
+
+    isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
+    bool isInWater = transform.position.y <= waterSurfacePoint.position.y;
+
+    if (isOnSurface && direction.y > 0 && !isJumping)
     {
-        if (isDead) return;
+        direction.y = 0;
+    }
 
-        direction.x = Input.GetAxisRaw("Horizontal");
-        direction.y = Input.GetAxisRaw("Vertical");
+    if (transform.position.y > waterSurfacePoint.position.y)
+    {
+        rb.gravityScale = defaultGravityScale;
+    }
+    else
+    {
+        rb.gravityScale = underwaterGravityScale;
+    }
 
-        isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
-        bool isInWater = transform.position.y <= waterSurfacePoint.position.y;
+    bool canJump = Physics2D.OverlapCircle(jumpCheckPoint.position, 0.1f, raftLayer);
 
-        if (isOnSurface && direction.y > 0 && !isJumping)
+    if (Input.GetKeyDown(KeyCode.Space) && (isOnRaft || isOnSurface) && canJump)
+    {
+        StartCoroutine(Jump());
+    }
+
+    if (Input.GetMouseButtonDown(0))
         {
-            direction.y = 0;
+            Attack();
+            nextAttackTime = Time.time + 1f / attackRate;
         }
 
-        if (transform.position.y > waterSurfacePoint.position.y)
-        {
-            rb.gravityScale = defaultGravityScale;
-        }
-        else
-        {
-            rb.gravityScale = underwaterGravityScale;
-        }
+    if (animator.GetCurrentAnimatorStateInfo(0).IsTag("Hurt")) return;
 
-        bool canJump = Physics2D.OverlapCircle(jumpCheckPoint.position, 0.1f, raftLayer);
-
-        if (Input.GetKeyDown(KeyCode.Space) && (isOnRaft || isOnSurface) && canJump)
+    if (isInWater && !isJumping)
+    {
+        if (direction.magnitude > 0)
         {
-            StartCoroutine(Jump());
-        }
-
-        if (isInWater && !isJumping)
-        {
-            if (direction.magnitude > 0)
+            if (direction.y > 0)
             {
-                if (direction.y > 0)
-                {
-                    animator.Play("PlayerSwimUp");
-                }
-                else if (direction.y < 0)
-                {
-                    animator.Play("PlayerSwimDown");
-                }
-                else
-                {
-                    animator.Play("PlayerSwim");
-                }
+                animator.Play("PlayerSwimUp");
+            }
+            else if (direction.y < 0)
+            {
+                animator.Play("PlayerSwimDown");
             }
             else
             {
-                animator.Play("PlayerIdle");
+                animator.Play("PlayerSwim");
             }
         }
-
-        if (direction.x < 0 && FacingRight)
+        else
         {
-            Flip();
+            animator.Play("PlayerIdle");
         }
-        else if (direction.x > 0 && !FacingRight)
-        {
-            Flip();
-        }
-
-        animator.SetBool("isOnSurface", isOnSurface);
     }
+
+    if (direction.x < 0 && FacingRight)
+    {
+        Flip();
+    }
+    else if (direction.x > 0 && !FacingRight)
+    {
+        Flip();
+    }
+
+    animator.SetBool("isOnSurface", isOnSurface);
+}
+
 
     void FixedUpdate()
     {
@@ -123,49 +139,103 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    bool IsHurtAnimationPlaying()
     {
-        Debug.Log($"Получен урон: {damage}. текущее хп: {currentHealth}");
-
-        if (isDead)
-        {
-            Debug.Log("Дамаг не прошел, игрок умер или в инвизе");
-            return;
-        }
-
-        currentHealth -= damage;
-        Bar.fillAmount = (float)currentHealth / maxHealth;
-
-        Debug.Log($"Хп после урона: {currentHealth}");
-
-        if (direction.y > 0)
-        {
-            Debug.Log("Запуск анимации: HurtSwimUp");
-            animator.SetTrigger("HurtSwimUp");
-        }
-        else if (direction.y < 0)
-        {
-            Debug.Log("Запуск анимации: HurtSwimDown");
-            animator.SetTrigger("HurtSwimDown");
-        }
-        else if (direction.x != 0)
-        {
-            Debug.Log("Запуск анимации: HurtSwim");
-            animator.SetTrigger("HurtSwim");
-        }
-        else
-        {
-            Debug.Log("Запуск анимации: HurtIdle");
-            animator.SetTrigger("HurtIdle");
-        }
-
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        return animator.GetCurrentAnimatorStateInfo(0).IsTag("Hurt");
     }
 
+public void TakeDamage(int damage)
+{
+    Debug.Log($"Получен урон: {damage}. текущее хп: {currentHealth}");
+
+    if (isDead)
+    {
+        Debug.Log("Дамаг не прошел, игрок умер или в инвизе");
+        return;
+    }
+
+    currentHealth -= damage;
+    Bar.fillAmount = (float)currentHealth / maxHealth;
+
+    Debug.Log($"Хп после урона: {currentHealth}");
+
+    animator.ResetTrigger("HurtSwimUp");
+    animator.ResetTrigger("HurtSwimDown");
+    animator.ResetTrigger("HurtSwim");
+    animator.ResetTrigger("HurtIdle");
+
+    if (direction.y > 0)
+    {
+        Debug.Log("Запуск анимации: HurtSwimUp");
+        animator.SetTrigger("HurtSwimUp");
+    }
+    else if (direction.y < 0)
+    {
+        Debug.Log("Запуск анимации: HurtSwimDown");
+        animator.SetTrigger("HurtSwimDown");
+    }
+    else if (direction.x != 0)
+    {
+        Debug.Log("Запуск анимации: HurtSwim");
+        animator.SetTrigger("HurtSwim");
+    }
+    else
+    {
+        Debug.Log("Запуск анимации: HurtIdle");
+        animator.SetTrigger("HurtIdle");
+    }
+
+    StartCoroutine(ResetHurtAnimation());
+
+    if (currentHealth <= 0)
+    {
+        Die();
+    }
+}
+
+void Attack()
+{
+    // Определяем направление атаки в зависимости от движения игрока
+    if (direction.y > 0) // Игрок движется вверх
+    {
+        animator.SetTrigger("AttackSwimUp");  // Атака вверх
+    }
+    else if (direction.y < 0) // Игрок движется вниз
+    {
+        animator.SetTrigger("AttackSwimDown");  // Атака вниз
+    }
+    else if (direction.x != 0) // Игрок движется в стороны (влево/вправ)
+    {
+        animator.SetTrigger("AttackSwim");  // Обычная атака в плавании (по горизонтали)
+    }
+    else // Игрок стоит на месте
+    {
+        animator.SetTrigger("AttackIdle");  // Атака стоя (на поверхности)
+    }
+
+    // Наносим урон врагам в зоне атаки
+    Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, AttackRange, enemyLayers);
+
+    foreach (Collider2D enemy in hitEnemies)
+    {
+        IDamageable damageable = enemy.GetComponent<IDamageable>();
+        if (damageable != null)
+        {
+            damageable.TakeDamage(attackDamage);
+        }
+    }
+}
+
+
+
+private IEnumerator ResetHurtAnimation()
+{
+    yield return new WaitForSeconds(0.5f);
+    animator.ResetTrigger("HurtSwimUp");
+    animator.ResetTrigger("HurtSwimDown");
+    animator.ResetTrigger("HurtSwim");
+    animator.ResetTrigger("HurtIdle");
+}
 
     public void Die()
     {

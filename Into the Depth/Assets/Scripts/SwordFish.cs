@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class SwordFish : MonoBehaviour, IDamageable
 {
@@ -14,10 +15,15 @@ public class SwordFish : MonoBehaviour, IDamageable
     public float detectionRange = 5f;
     public float attackRange = 1f;
     public float attackCooldown = 2f;
-    private float lastAttackTime;
+    public float knockbackForce = 2f; // Сила отплытия после атаки
+    public Transform waterSurfacePoint; // Точка поверхности воды
+    private float waterSurfaceY; // Y-координата поверхности воды
 
+    private float lastAttackTime;
     private Transform player;
     private bool isDead = false;
+    private bool isKnockedBack = false;
+    private Vector2 lastMoveDirection; // Запоминаем последнее направление движения
 
     void Start()
     {
@@ -33,6 +39,15 @@ public class SwordFish : MonoBehaviour, IDamageable
             Debug.LogError("Player not found! Make sure player has 'Player' tag");
         }
 
+        if (waterSurfacePoint != null)
+        {
+            waterSurfaceY = waterSurfacePoint.position.y; // Запоминаем уровень воды
+        }
+        else
+        {
+            Debug.LogError("WaterSurfacePoint is not assigned! Assign it in the Inspector.");
+        }
+
         lastAttackTime = -attackCooldown;
 
         if (isDead)
@@ -43,7 +58,7 @@ public class SwordFish : MonoBehaviour, IDamageable
 
     void Update()
     {
-        if (isDead) return;
+        if (isDead || isKnockedBack) return;
 
         if (currentHealth <= 0 || player == null || animator == null) return;
 
@@ -64,7 +79,7 @@ public class SwordFish : MonoBehaviour, IDamageable
 
             if (distanceToPlayer <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             {
-                Attack();
+                StartCoroutine(Attack());
             }
         }
         else
@@ -72,32 +87,57 @@ public class SwordFish : MonoBehaviour, IDamageable
             rb.velocity = Vector2.zero;
             animator.SetBool("IsRunning", false);
         }
+
+        // Ограничиваем движение выше поверхности воды
+        if (transform.position.y > waterSurfaceY)
+        {
+            Vector3 newPosition = transform.position;
+            newPosition.y = waterSurfaceY;
+            transform.position = newPosition;
+        }
     }
 
     void ChasePlayer()
     {
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * moveSpeed;
+
+        // Запоминаем направление движения перед атакой
+        lastMoveDirection = direction;
+
+        // Разворачиваем рыбу в сторону движения
         transform.localScale = new Vector3(Mathf.Sign(direction.x), 1, 1);
     }
 
-
-    void Attack()
+    IEnumerator Attack()
     {
-        if (Time.time < lastAttackTime + attackCooldown) return;
+        if (Time.time < lastAttackTime + attackCooldown) yield break;
 
         lastAttackTime = Time.time;
-        var playerScript = player.GetComponent<PlayerScript>();
+        rb.velocity = Vector2.zero;
+        animator.SetTrigger("Attack");
 
+        var playerScript = player.GetComponent<PlayerScript>();
         if (playerScript != null)
         {
             playerScript.TakeDamage(1);
-            animator.SetTrigger("Attack");
         }
-        else
-        {
-            Debug.LogError("PlayerScript component not found on player object!");
-        }
+
+        yield return new WaitForSeconds(0.3f); // Ждем немного перед отплытием
+
+        StartCoroutine(KnockbackAfterAttack());
+    }
+
+    IEnumerator KnockbackAfterAttack()
+    {
+        isKnockedBack = true;
+        
+        // Рыба отплывает в том же направлении, в котором плыла перед атакой
+        rb.velocity = lastMoveDirection * knockbackForce;
+
+        yield return new WaitForSeconds(0.5f); // Время отплытия
+
+        isKnockedBack = false;
     }
 
     public void TakeDamage(int damage)
@@ -124,9 +164,6 @@ public class SwordFish : MonoBehaviour, IDamageable
 
         if (fishCollider != null)
             fishCollider.enabled = false;
-
-        PlayerScript playerScript = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerScript>();
-
     }
 
     void SetupDeathState()
