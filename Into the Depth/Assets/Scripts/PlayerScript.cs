@@ -55,8 +55,10 @@ void Update()
 {
     if (isDead) return;
 
-    direction.x = Input.GetAxisRaw("Horizontal");
-    direction.y = Input.GetAxisRaw("Vertical");
+direction = new Vector2(
+    Input.GetAxisRaw("Horizontal"),
+    Input.GetAxisRaw("Vertical")
+).normalized;
 
     isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
     bool isInWater = transform.position.y <= waterSurfacePoint.position.y;
@@ -83,35 +85,23 @@ void Update()
     }
 
     if (Input.GetMouseButtonDown(0))
-        {
-            Attack();
-            nextAttackTime = Time.time + 1f / attackRate;
-        }
+    {
+        Attack();
+        nextAttackTime = Time.time + 1f / attackRate;
+    }
 
     if (animator.GetCurrentAnimatorStateInfo(0).IsTag("Hurt")) return;
 
-    if (isInWater && !isJumping)
-    {
-        if (direction.magnitude > 0)
-        {
-            if (direction.y > 0)
-            {
-                animator.Play("PlayerSwimUp");
-            }
-            else if (direction.y < 0)
-            {
-                animator.Play("PlayerSwimDown");
-            }
-            else
-            {
-                animator.Play("PlayerSwim");
-            }
-        }
-        else
-        {
-            animator.Play("PlayerIdle");
-        }
-    }
+
+  if (isInWater && !isJumping)
+{
+    bool hasVerticalInput = Mathf.Abs(direction.y) > 0.1f;
+    bool hasHorizontalInput = Mathf.Abs(direction.x) > 0.1f;
+    
+    animator.SetBool("IsMoving", direction.magnitude > 0.1f);
+    animator.SetFloat("velocityY", hasVerticalInput ? direction.y : 0);
+    animator.SetFloat("velocityX", hasHorizontalInput ? Mathf.Abs(direction.x) : 0);
+}
 
     if (direction.x < 0 && FacingRight)
     {
@@ -124,6 +114,7 @@ void Update()
 
     animator.SetBool("isOnSurface", isOnSurface);
 }
+
 
 
     void FixedUpdate()
@@ -194,31 +185,31 @@ public void TakeDamage(int damage)
 }
 
 void Attack()
-{
-    // Определяем направление атаки в зависимости от движения игрока
-    if (direction.y > 0) // Игрок движется вверх
+ {
+   
+    if (direction.y > 0) 
     {
-        animator.SetTrigger("AttackSwimUp");  // Атака вверх
+        animator.SetTrigger("AttackSwimUp"); 
     }
-    else if (direction.y < 0) // Игрок движется вниз
+    else if (direction.y < 0) 
     {
-        animator.SetTrigger("AttackSwimDown");  // Атака вниз
+        animator.SetTrigger("AttackSwimDown"); 
     }
-    else if (direction.x != 0) // Игрок движется в стороны (влево/вправ)
+    else if (direction.x != 0) 
     {
-        animator.SetTrigger("AttackSwim");  // Обычная атака в плавании (по горизонтали)
+        animator.SetTrigger("AttackSwim");  
     }
-    else // Игрок стоит на месте
+    else 
     {
-        animator.SetTrigger("AttackIdle");  // Атака стоя (на поверхности)
+        animator.SetTrigger("AttackIdle");  
     }
 
-    // Наносим урон врагам в зоне атаки
+   
     Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, AttackRange, enemyLayers);
 
     foreach (Collider2D enemy in hitEnemies)
     {
-        IDamageable damageable = enemy.GetComponent<IDamageable>();
+       IDamageable damageable = enemy.GetComponent<IDamageable>();
         if (damageable != null)
         {
             damageable.TakeDamage(attackDamage);
