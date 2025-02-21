@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2112650635662574c82cc90df6c3bef8, type: 3}
+  m_Name: seal_saddle
+  m_EditorClassIdentifier: 
+  itemName: Saddle
+  itemIcon: {fileID: 1132987784001783003, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
+    type: 3}

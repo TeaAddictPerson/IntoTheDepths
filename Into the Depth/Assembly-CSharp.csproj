@@ -58,13 +58,18 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AddUserCheck.cs" />
     <Compile Include="Assets\Scripts\CheckUser.cs" />
+    <Compile Include="Assets\Scripts\ConsumableClass.cs" />
     <Compile Include="Assets\Scripts\IDamageable.cs" />
+    <Compile Include="Assets\Scripts\InventoryManager.cs" />
+    <Compile Include="Assets\Scripts\ItemsClass.cs" />
+    <Compile Include="Assets\Scripts\MiscClass.cs" />
     <Compile Include="Assets\Scripts\PasswordToggle.cs" />
     <Compile Include="Assets\Scripts\PlayerScript.cs" />
     <Compile Include="Assets\Scripts\Quit.cs" />
     <Compile Include="Assets\Scripts\SceneTransition.cs" />
     <Compile Include="Assets\Scripts\SqlConnect.cs" />
     <Compile Include="Assets\Scripts\SwordFish.cs" />
+    <Compile Include="Assets\Scripts\ToolClass.cs" />
     <Compile Include="Assets\Scripts\UserSession.cs" />
     <Compile Include="Assets\Scripts\UsernameInputValidator.cs" />
     <Compile Include="Assets\Scripts\ValidatePassword.cs" />
