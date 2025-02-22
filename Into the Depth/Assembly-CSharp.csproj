@@ -66,6 +66,7 @@
      <Compile Include="Assets\Scripts\PlayerScript.cs" />
      <Compile Include="Assets\Scripts\Quit.cs" />
      <Compile Include="Assets\Scripts\SceneTransition.cs" />
+     <Compile Include="Assets\Scripts\SlotClass.cs" />
      <Compile Include="Assets\Scripts\SqlConnect.cs" />
      <Compile Include="Assets\Scripts\SwordFish.cs" />
      <Compile Include="Assets\Scripts\ToolClass.cs" />
