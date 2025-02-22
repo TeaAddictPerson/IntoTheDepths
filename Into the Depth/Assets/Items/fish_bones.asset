@@ -15,4 +15,5 @@ MonoBehaviour:
   itemName: FishBones
   itemIcon: {fileID: -2619851052050240692, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
     type: 3}
+  IsStackable: 1
   healthAdded: 0

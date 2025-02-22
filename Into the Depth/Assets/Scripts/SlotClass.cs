@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class SlotClass 
 {
-    private ItemsClass item;
-    private int quantity;
+    [SerializeField] private ItemsClass item;
+    [SerializeField] private int quantity;
 
     public SlotClass()
     {
@@ -21,4 +22,5 @@ public class SlotClass
     public ItemsClass GetItem() { return item; }
     public int GetQuantity() { return quantity; }
     public void AddQuantity(int _quantity) { quantity += _quantity;}
+    public void SubQuantity(int _quantity) { quantity -= _quantity; }
 }
