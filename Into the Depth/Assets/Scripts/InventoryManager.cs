@@ -6,28 +6,63 @@ using TMPro;
 
 public class InventoryManager : MonoBehaviour
 {
+    [SerializeField] private GameObject itemCursor;
     [SerializeField] private GameObject slotHolder;
     [SerializeField] private ItemsClass itemToAdd;
     [SerializeField] private ItemsClass itemToRemove;
 
-  public List<SlotClass> items = new List<SlotClass>();
+    [SerializeField] private SlotClass[] startingItems;
+    private SlotClass[] items;
 
-  private GameObject[] slots;
+    private GameObject[] slots;
 
-  public void Start()
+    private SlotClass movingSlot;
+    private SlotClass TempSlot;
+    private SlotClass originalSlot;
+    bool IsMovingItem;
+    private void Start()
   {
     slots = new GameObject[slotHolder.transform.childCount];
+    items = new SlotClass[slots.Length];
 
-    for(int i=0; i<slotHolder.transform.childCount; i++)
+        for (int i = 0; i < items.Length; i++)
+        {
+            items[i]=new SlotClass();
+        }
+        for (int i = 0; i < startingItems.Length; i++)
+        {
+            items[i] = startingItems[i];
+        }
+
+        for (int i=0; i<slotHolder.transform.childCount; i++)
         slots[i]= slotHolder.transform.GetChild(i).gameObject;
     
     RefreshUI();
 
-    Add(itemToAdd);
+    Add(itemToAdd,1);
     Remove(itemToRemove);
   }
 
-  public void RefreshUI()
+    private void Update()
+    {
+        itemCursor.SetActive(IsMovingItem);
+        itemCursor.transform.position=Input.mousePosition;
+        if (IsMovingItem)
+            itemCursor.GetComponent<Image>().sprite = movingSlot.GetItem().itemIcon;
+
+         if(Input.GetMouseButtonDown(0)) 
+         {
+            if(IsMovingItem)
+            {
+                EndItemMove();
+            }
+            else 
+                        BeginItemMove();
+         }
+    }
+
+    #region Inventory Utils
+    public void RefreshUI()
 {
     for (int i = 0; i < slots.Length; i++)
     {
@@ -50,7 +85,7 @@ public class InventoryManager : MonoBehaviour
     }
 }
 
-  public bool Add(ItemsClass item)
+  public bool Add(ItemsClass item, int quantity)
   {
     
 
@@ -62,12 +97,18 @@ public class InventoryManager : MonoBehaviour
    
     else
     {
-            if(items.Count<slots.Length)
-                items.Add(new SlotClass(item,1));
-            else
+            for (int i = 0; i < items.Length; i++)
             {
-                return false;
+                if (items[i].GetItem() == null)
+                {
+                    items[i].AddItem(item, quantity);
+                    break;
+                }
             }
+
+            
+            
+       
     }
 
     RefreshUI();
@@ -83,17 +124,17 @@ public class InventoryManager : MonoBehaviour
                 temp.SubQuantity(1);
             else
             {
-                SlotClass slotToRemove = new SlotClass();
+                int slotToRemoveIndex = 0;
 
-                foreach (SlotClass slot in items)
+                for(int i=0;i<items.Length; i++)    
                 {
-                    if (slot.GetItem() == item)
+                    if (items[i].GetItem() == item)
                     {
-                        slotToRemove = slot;
+                        slotToRemoveIndex = i;
                         break;
                     }
                 }
-                items.Remove(slotToRemove);
+                items[slotToRemoveIndex].Clear();
             }
         }
 
@@ -108,12 +149,90 @@ public class InventoryManager : MonoBehaviour
 
   public SlotClass Contains(ItemsClass item)
   {
-    foreach(SlotClass slot in items)
+    for (int i = 0; i < items.Length; i++)
     {
-        if(slot.GetItem() == item)
-        return slot;
+        if (items[i].GetItem() == item)
+            return items[i];
+
+    }
+        return null;
+  }
+    #endregion Inventory Utils
+
+    #region Moving Stuff
+
+    private bool BeginItemMove()
+    {
+        originalSlot = (GetClosestSlot());
+        if (originalSlot == null || originalSlot.GetItem()==null)
+            return false;
+
+        movingSlot = new SlotClass(originalSlot.GetItem(), originalSlot.GetQuantity());
+        originalSlot.Clear();
+        IsMovingItem= true;
+        RefreshUI();
+        return true;
     }
 
-    return null;
-  }
+    private bool EndItemMove()
+    {
+        originalSlot = (GetClosestSlot());
+        if (originalSlot == null)
+        {
+            Add(movingSlot.GetItem(), movingSlot.GetQuantity());
+            movingSlot.Clear();
+        }
+        else
+        {
+
+
+
+            if (originalSlot.GetItem() != null)
+            {
+
+                if (originalSlot.GetItem() == movingSlot.GetItem())
+                {
+                    if (originalSlot.GetItem().IsStackable)
+                    {
+                        originalSlot.AddQuantity(movingSlot.GetQuantity());
+                        movingSlot.Clear();
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    TempSlot = new SlotClass(originalSlot.GetItem(), originalSlot.GetQuantity());
+                    originalSlot.AddItem(movingSlot.GetItem(), movingSlot.GetQuantity());
+                    movingSlot.AddItem(TempSlot.GetItem(), TempSlot.GetQuantity());
+                    RefreshUI();
+                    return true;
+                }
+            }
+            else
+            {
+                originalSlot.AddItem(movingSlot.GetItem(), movingSlot.GetQuantity());
+                movingSlot.Clear();
+            }
+        }
+        IsMovingItem= false;
+        RefreshUI();
+        return true;
+
+    }
+
+    private SlotClass GetClosestSlot()
+    {
+        Debug.Log(Input.mousePosition);
+
+        for(int i=0; i<slots.Length;i++)
+        {
+            if (Vector2.Distance(slots[i].transform.position, Input.mousePosition) <= 32)
+                return items[i];
+        }
+        return null;
+    }
+    #endregion
 }
