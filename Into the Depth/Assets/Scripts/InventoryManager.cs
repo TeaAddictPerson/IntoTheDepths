@@ -59,6 +59,15 @@ public class InventoryManager : MonoBehaviour
             else 
                         BeginItemMove();
          }
+         else if(Input.GetMouseButtonDown(1))
+         {
+            if(IsMovingItem)
+            {
+                EndItemMoveSingle();
+            }
+            else 
+                BeginItemMoveHalf();
+         }
     }
 
     #region Inventory Utils
@@ -104,11 +113,7 @@ public class InventoryManager : MonoBehaviour
                     items[i].AddItem(item, quantity);
                     break;
                 }
-            }
-
-            
-            
-       
+            }   
     }
 
     RefreshUI();
@@ -163,7 +168,7 @@ public class InventoryManager : MonoBehaviour
 
     private bool BeginItemMove()
     {
-        originalSlot = (GetClosestSlot());
+        originalSlot = GetClosestSlot();
         if (originalSlot == null || originalSlot.GetItem()==null)
             return false;
 
@@ -174,9 +179,29 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
+private bool BeginItemMoveHalf()
+{
+    originalSlot = GetClosestSlot();
+    if (originalSlot == null || originalSlot.GetItem() == null || originalSlot.GetQuantity() <= 1)
+        return false; 
+
+    int halfQuantity = Mathf.CeilToInt(originalSlot.GetQuantity() / 2f);
+    
+    movingSlot = new SlotClass(originalSlot.GetItem(), halfQuantity);
+    originalSlot.SubQuantity(halfQuantity);
+    
+    if(originalSlot.GetQuantity() == 0)
+        originalSlot.Clear();
+    
+    IsMovingItem = true;
+    RefreshUI();
+    return true;
+}
+
+
     private bool EndItemMove()
     {
-        originalSlot = (GetClosestSlot());
+        originalSlot = GetClosestSlot();
         if (originalSlot == null)
         {
             Add(movingSlot.GetItem(), movingSlot.GetQuantity());
@@ -184,9 +209,6 @@ public class InventoryManager : MonoBehaviour
         }
         else
         {
-
-
-
             if (originalSlot.GetItem() != null)
             {
 
@@ -221,6 +243,33 @@ public class InventoryManager : MonoBehaviour
         RefreshUI();
         return true;
 
+    }
+
+     private bool EndItemMoveSingle()
+    {
+        originalSlot = GetClosestSlot();
+        if (originalSlot == null)
+            return false;
+
+        movingSlot.SubQuantity(1);
+        if (originalSlot.GetItem() != null && originalSlot.GetItem()== movingSlot.GetItem())
+        {
+            originalSlot.AddQuantity(1);
+        }
+        else
+            originalSlot.AddItem(movingSlot.GetItem(),1);
+
+        if(movingSlot.GetQuantity() < 1)
+        {
+            IsMovingItem=false;
+            movingSlot.Clear();
+        }
+        else
+            IsMovingItem = true;
+
+        RefreshUI();
+        return true;
+    
     }
 
     private SlotClass GetClosestSlot()
