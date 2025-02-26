@@ -8,13 +8,16 @@ public class InventoryManager : MonoBehaviour
 {
     [SerializeField] private GameObject itemCursor;
     [SerializeField] private GameObject slotHolder;
+    [SerializeField] private GameObject hotbarslotHolder;
     [SerializeField] private ItemsClass itemToAdd;
     [SerializeField] private ItemsClass itemToRemove;
 
     [SerializeField] private SlotClass[] startingItems;
     private SlotClass[] items;
+    private SlotClass[] hotbaritems;
 
     private GameObject[] slots;
+    private GameObject[] hotbarSlots;
 
     private SlotClass movingSlot;
     private SlotClass TempSlot;
@@ -24,6 +27,9 @@ public class InventoryManager : MonoBehaviour
   {
     slots = new GameObject[slotHolder.transform.childCount];
     items = new SlotClass[slots.Length];
+
+    hotbarSlots = new GameObject[hotbarslotHolder.transform.childCount];
+    hotbaritems = new SlotClass[hotbarSlots.Length];
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -250,7 +256,10 @@ private bool BeginItemMoveHalf()
         originalSlot = GetClosestSlot();
         if (originalSlot == null)
             return false;
-
+        if (originalSlot.GetItem() !=null && originalSlot.GetItem() != movingSlot.GetItem())
+        {
+            return false;
+        }
         movingSlot.SubQuantity(1);
         if (originalSlot.GetItem() != null && originalSlot.GetItem()== movingSlot.GetItem())
         {
