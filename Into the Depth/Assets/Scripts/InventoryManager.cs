@@ -14,7 +14,6 @@ public class InventoryManager : MonoBehaviour
 
     [SerializeField] private SlotClass[] startingItems;
     private SlotClass[] items;
-    private SlotClass[] hotbaritems;
 
     private GameObject[] slots;
     private GameObject[] hotbarSlots;
@@ -23,13 +22,20 @@ public class InventoryManager : MonoBehaviour
     private SlotClass TempSlot;
     private SlotClass originalSlot;
     bool IsMovingItem;
+
+    [SerializeField] private int selectedSlotIndex = 0;
+    [SerializeField] private GameObject hotbarSelector;
+    public ItemsClass selectedItem;
     private void Start()
   {
     slots = new GameObject[slotHolder.transform.childCount];
     items = new SlotClass[slots.Length];
 
     hotbarSlots = new GameObject[hotbarslotHolder.transform.childCount];
-    hotbaritems = new SlotClass[hotbarSlots.Length];
+        for(int i=0;i<hotbarSlots.Length; i++)
+        {
+            hotbarSlots[i] = hotbarslotHolder.transform.GetChild(i).gameObject;
+        }
 
         for (int i = 0; i < items.Length; i++)
         {
@@ -52,53 +58,108 @@ public class InventoryManager : MonoBehaviour
     private void Update()
     {
         itemCursor.SetActive(IsMovingItem);
-        itemCursor.transform.position=Input.mousePosition;
+        itemCursor.transform.position = Input.mousePosition;
         if (IsMovingItem)
             itemCursor.GetComponent<Image>().sprite = movingSlot.GetItem().itemIcon;
 
-         if(Input.GetMouseButtonDown(0)) 
-         {
-            if(IsMovingItem)
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (IsMovingItem)
             {
                 EndItemMove();
             }
-            else 
-                        BeginItemMove();
-         }
-         else if(Input.GetMouseButtonDown(1))
-         {
-            if(IsMovingItem)
+            else
+            {
+                BeginItemMove();
+            }
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            if (IsMovingItem)
             {
                 EndItemMoveSingle();
             }
-            else 
+            else
+            {
                 BeginItemMoveHalf();
-         }
+            }
+        }
+
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            selectedSlotIndex++;
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            selectedSlotIndex--;
+        }
+
+ 
+        selectedSlotIndex = Mathf.Clamp(selectedSlotIndex, 0, hotbarSlots.Length - 1);
+
+        hotbarSelector.transform.position = hotbarSlots[selectedSlotIndex].transform.position;
+
+        int index = selectedSlotIndex + (hotbarSlots.Length * 3);
+        if (index < items.Length)
+        {
+            selectedItem = items[index].GetItem();
+        }
+        else
+        {
+            selectedItem = null; 
+        }
     }
+
 
     #region Inventory Utils
     public void RefreshUI()
-{
-    for (int i = 0; i < slots.Length; i++)
     {
-        try
+        for (int i = 0; i < slots.Length; i++)
         {
-            slots[i].transform.GetChild(0).GetComponent<Image>().enabled = true;
-            slots[i].transform.GetChild(0).GetComponent<Image>().sprite = items[i].GetItem().itemIcon;   
+            try
+            {
+                slots[i].transform.GetChild(0).GetComponent<Image>().enabled = true;
+                slots[i].transform.GetChild(0).GetComponent<Image>().sprite = items[i].GetItem().itemIcon;   
 
-            if(items[i].GetItem().IsStackable)
-                slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = items[i].GetQuantity() + ""; 
-            else
-                slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = "";
+                if(items[i].GetItem().IsStackable)
+                    slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = items[i].GetQuantity() + ""; 
+                else
+                    slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = "";
+                }
+            catch
+            {
+                slots[i].transform.GetChild(0).GetComponent<Image>().sprite = null;
+                slots[i].transform.GetChild(0).GetComponent<Image>().enabled = false;
+                slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = ""; 
             }
-        catch
-        {
-            slots[i].transform.GetChild(0).GetComponent<Image>().sprite = null;
-            slots[i].transform.GetChild(0).GetComponent<Image>().enabled = false;
-            slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = ""; 
         }
+
+        RefreshHotbar();
     }
-}
+
+    public void RefreshHotbar()
+    {
+        for (int i = 0; i < hotbarSlots.Length; i++)
+        {
+            try
+            {
+                hotbarSlots[i].transform.GetChild(0).GetComponent<Image>().enabled = true;
+                hotbarSlots[i].transform.GetChild(0).GetComponent<Image>().sprite = items[i+ (hotbarSlots.Length*3)].GetItem().itemIcon;
+
+                if (items[i + (hotbarSlots.Length * 3)].GetItem().IsStackable)
+                    hotbarSlots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = items[i + (hotbarSlots.Length * 3)].GetQuantity() + "";
+                else
+                    slots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = "";
+            }
+            catch
+            {
+                hotbarSlots[i].transform.GetChild(0).GetComponent<Image>().sprite = null;
+                hotbarSlots[i].transform.GetChild(0).GetComponent<Image>().enabled = false;
+                hotbarSlots[i].transform.GetChild(1).GetComponent<TMP_Text>().text = "";
+            }
+        }
+
+    }
 
   public bool Add(ItemsClass item, int quantity)
   {
@@ -107,7 +168,7 @@ public class InventoryManager : MonoBehaviour
     SlotClass slot = Contains(item);
     if(slot!=null && slot.GetItem().IsStackable)
     {
-       slot.AddQuantity(1);
+       slot.AddQuantity(quantity);
     }    
    
     else
