@@ -59,6 +59,7 @@
     <Compile Include="Assets\Scripts\AddUserCheck.cs" />
     <Compile Include="Assets\Scripts\CheckUser.cs" />
     <Compile Include="Assets\Scripts\ConsumableClass.cs" />
+    <Compile Include="Assets\Scripts\CraftingRecipeClass.cs" />
     <Compile Include="Assets\Scripts\IDamageable.cs" />
     <Compile Include="Assets\Scripts\InventoryManager.cs" />
     <Compile Include="Assets\Scripts\ItemsClass.cs" />

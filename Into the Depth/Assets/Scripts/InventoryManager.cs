@@ -6,6 +6,8 @@ using TMPro;
 
 public class InventoryManager : MonoBehaviour
 {
+    [SerializeField] private List<CraftingRecipeClass> craftingRecipes= new List<CraftingRecipeClass>();
+
     [SerializeField] private GameObject itemCursor;
     [SerializeField] private GameObject slotHolder;
     [SerializeField] private GameObject hotbarslotHolder;
@@ -57,6 +59,11 @@ public class InventoryManager : MonoBehaviour
 
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.C))
+            Craft(craftingRecipes[0]);
+
+
+
         itemCursor.SetActive(IsMovingItem);
         itemCursor.transform.position = Input.mousePosition;
         if (IsMovingItem)
@@ -109,6 +116,29 @@ public class InventoryManager : MonoBehaviour
             selectedItem = null; 
         }
     }
+
+    private void Craft(CraftingRecipeClass recipe)
+    {
+        if(recipe.CanCraft(this))
+            recipe.Craft(this);
+        else
+        {
+            Debug.Log("Нельзя скрафтить");
+        }
+    }
+
+    public bool IsFull()
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].GetItem()==null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 
     #region Inventory Utils
@@ -219,7 +249,39 @@ public class InventoryManager : MonoBehaviour
         return true;
   }
 
-  public SlotClass Contains(ItemsClass item)
+    public bool Remove(ItemsClass item, int quantity)
+    {
+        SlotClass temp = Contains(item);
+        if (temp != null)
+        {
+            if (temp.GetQuantity() > 1)
+                temp.SubQuantity(quantity);
+            else
+            {
+                int slotToRemoveIndex = 0;
+
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (items[i].GetItem() == item)
+                    {
+                        slotToRemoveIndex = i;
+                        break;
+                    }
+                }
+                items[slotToRemoveIndex].Clear();
+            }
+        }
+
+        else
+        {
+            return false;
+        }
+
+        RefreshUI();
+        return true;
+    }
+
+    public SlotClass Contains(ItemsClass item)
   {
     for (int i = 0; i < items.Length; i++)
     {
@@ -229,6 +291,19 @@ public class InventoryManager : MonoBehaviour
     }
         return null;
   }
+
+    public bool Contains(ItemsClass item, int quantity)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].GetItem() == item && items[i].GetQuantity()>=quantity)
+                return true;
+
+        }
+        return false;
+    }
+
+
     #endregion Inventory Utils
 
     #region Moving Stuff
