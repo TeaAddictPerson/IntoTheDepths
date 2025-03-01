@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9295fb3f2117e4981d4ea4118b5b2f, type: 3}
+  m_Name: FlippersRecipe
+  m_EditorClassIdentifier: 
+  inputItems:
+  - item: {fileID: 11400000, guid: 62d0c46cf95da9e4ab961908b4aaf583, type: 2}
+    quantity: 4
+  outputItem:
+  - item: {fileID: 11400000, guid: 48d8901fd5d2c32429900d7ab71d2cca, type: 2}
+    quantity: 1

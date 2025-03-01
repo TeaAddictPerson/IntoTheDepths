@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: raw_fish
   m_EditorClassIdentifier: 
   itemName: RawFish
-  itemIcon: {fileID: -2235457640413660080, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
+  itemIcon: {fileID: 8923840940298979802, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
     type: 3}
+  IsStackable: 1
   healthAdded: 1

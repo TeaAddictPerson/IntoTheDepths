@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9295fb3f2117e4981d4ea4118b5b2f, type: 3}
+  m_Name: SaddleRecipe
+  m_EditorClassIdentifier: 
+  inputItems:
+  - item: {fileID: 11400000, guid: 5e0690ff67f6fb24aa213274ed0b84d6, type: 2}
+    quantity: 3
+  - item: {fileID: 11400000, guid: 62d0c46cf95da9e4ab961908b4aaf583, type: 2}
+    quantity: 2
+  - item: {fileID: 11400000, guid: 18d0e363a295354458b0820bd756eefd, type: 2}
+    quantity: 1
+  outputItem:
+  - item: {fileID: 11400000, guid: 4ed9cb8feabea9d49ad8a1948b84e4d3, type: 2}
+    quantity: 1

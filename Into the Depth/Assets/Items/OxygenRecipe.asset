@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9295fb3f2117e4981d4ea4118b5b2f, type: 3}
+  m_Name: OxygenRecipe
+  m_EditorClassIdentifier: 
+  inputItems:
+  - item: {fileID: 11400000, guid: 84c9db8875c75504a8c1f1fe5bc8bcce, type: 2}
+    quantity: 1
+  - item: {fileID: 11400000, guid: 039d42ccb8a967542948822ded48def2, type: 2}
+    quantity: 1
+  - item: {fileID: 11400000, guid: 18d0e363a295354458b0820bd756eefd, type: 2}
+    quantity: 1
+  outputItem:
+  - item: {fileID: 11400000, guid: b027b691444211c4db2bf813bb141a02, type: 2}
+    quantity: 1

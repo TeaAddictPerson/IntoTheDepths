@@ -9,7 +9,7 @@ public class ToolClass : ItemsClass
     public ToolType toolType;
     public enum ToolType
     {
-        drill
+        drill,oxygen,flippers
     } 
 
     public override ItemsClass GetItem() { return this; }

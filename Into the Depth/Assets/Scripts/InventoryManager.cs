@@ -14,6 +14,8 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private ItemsClass itemToAdd;
     [SerializeField] private ItemsClass itemToRemove;
 
+    [SerializeField] private GameObject InventoryUI;
+
     [SerializeField] private SlotClass[] startingItems;
     private SlotClass[] items;
 
@@ -32,6 +34,8 @@ public class InventoryManager : MonoBehaviour
   {
     slots = new GameObject[slotHolder.transform.childCount];
     items = new SlotClass[slots.Length];
+
+    InventoryUI.gameObject.SetActive(false);
 
     hotbarSlots = new GameObject[hotbarslotHolder.transform.childCount];
         for(int i=0;i<hotbarSlots.Length; i++)
@@ -60,8 +64,12 @@ public class InventoryManager : MonoBehaviour
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.C))
-            Craft(craftingRecipes[0]);
+            Craft(craftingRecipes[4]);
 
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            InventoryUI.gameObject.SetActive(!InventoryUI.activeSelf);
+        }
 
 
         itemCursor.SetActive(IsMovingItem);
@@ -249,40 +257,32 @@ public class InventoryManager : MonoBehaviour
         return true;
   }
 
-    public bool Remove(ItemsClass item, int quantity)
+public bool Remove(ItemsClass item, int quantity)
+{
+    int totalRemoved = 0;
+    for (int i = 0; i < items.Length; i++)
     {
-        SlotClass temp = Contains(item);
-        if (temp != null)
+        if (items[i].GetItem() == item)
         {
-            if (temp.GetQuantity() > 1)
-                temp.SubQuantity(quantity);
-            else
-            {
-                int slotToRemoveIndex = 0;
+            int removeAmount = Mathf.Min(quantity - totalRemoved, items[i].GetQuantity());
+            items[i].SubQuantity(removeAmount);
+            totalRemoved += removeAmount;
 
-                for (int i = 0; i < items.Length; i++)
-                {
-                    if (items[i].GetItem() == item)
-                    {
-                        slotToRemoveIndex = i;
-                        break;
-                    }
-                }
-                items[slotToRemoveIndex].Clear();
-            }
+            if (items[i].GetQuantity() == 0)
+                items[i].Clear();
+
+            if (totalRemoved >= quantity)
+                break;
         }
-
-        else
-        {
-            return false;
-        }
-
-        RefreshUI();
-        return true;
     }
 
+    RefreshUI();
+    return totalRemoved >= quantity;
+}
+
+
     public SlotClass Contains(ItemsClass item)
-  {
+    {
     for (int i = 0; i < items.Length; i++)
     {
         if (items[i].GetItem() == item)
@@ -290,7 +290,7 @@ public class InventoryManager : MonoBehaviour
 
     }
         return null;
-  }
+    }
 
     public bool Contains(ItemsClass item, int quantity)
     {

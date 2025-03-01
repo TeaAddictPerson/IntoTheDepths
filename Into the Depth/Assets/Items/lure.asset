@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: lure
   m_EditorClassIdentifier: 
   itemName: Lure
-  itemIcon: {fileID: 4085667115967006128, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
+  itemIcon: {fileID: 1878247518140289144, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
     type: 3}
   IsStackable: 1

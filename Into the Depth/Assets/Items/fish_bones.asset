@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: fish_bones
   m_EditorClassIdentifier: 
   itemName: FishBones
-  itemIcon: {fileID: -2619851052050240692, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
+  itemIcon: {fileID: -2235457640413660080, guid: e309e7589ec0fa24bbdd19e3750ca5e1,
     type: 3}
   IsStackable: 1
   healthAdded: 0
