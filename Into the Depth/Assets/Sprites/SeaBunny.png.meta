@@ -1,7 +1,28 @@
 fileFormatVersion: 2
 guid: fd8e7a4ef18a75c499e267edab622893
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -7409220413071342199
+    second: SeaBunny_0
+  - first:
+      213: 5354223967633651951
+    second: SeaBunny_1
+  - first:
+      213: -1530790240841166822
+    second: SeaBunny_2
+  - first:
+      213: -1265468147443700239
+    second: SeaBunny_3
+  - first:
+      213: 6860759454310258730
+    second: SeaBunny_4
+  - first:
+      213: -9209545004614373937
+    second: SeaBunny_5
+  - first:
+      213: -2489051902984777530
+    second: SeaBunny_6
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -40,7 +61,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -97,7 +118,154 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: SeaBunny_0
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 163
+        width: 169
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9854f404a492d2990800000000000000
+      internalID: -7409220413071342199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SeaBunny_1
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 166
+        width: 169
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe8bfa6a4560e4a40800000000000000
+      internalID: 5354223967633651951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SeaBunny_2
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 34
+        width: 169
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a10170de26a81cae0800000000000000
+      internalID: -1530790240841166822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SeaBunny_3
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 37
+        width: 169
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1fdeb05bc67207ee0800000000000000
+      internalID: -1265468147443700239
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SeaBunny_4
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 34
+        width: 198
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a28d093bf50563f50800000000000000
+      internalID: 6860759454310258730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SeaBunny_5
+      rect:
+        serializedVersion: 2
+        x: 857
+        y: 37
+        width: 169
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fcdacf0dc9f113080800000000000000
+      internalID: -9209545004614373937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SeaBunny_6
+      rect:
+        serializedVersion: 2
+        x: 1127
+        y: 34
+        width: 169
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c015175b7c157dd0800000000000000
+      internalID: -2489051902984777530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
