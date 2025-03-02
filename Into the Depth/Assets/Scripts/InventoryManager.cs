@@ -13,6 +13,8 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private GameObject hotbarslotHolder;
     [SerializeField] private ItemsClass itemToAdd;
     [SerializeField] private ItemsClass itemToRemove;
+    [SerializeField] private GameObject itemPrefab; 
+
 
     [SerializeField] private GameObject InventoryUI;
 
@@ -35,7 +37,7 @@ public class InventoryManager : MonoBehaviour
     slots = new GameObject[slotHolder.transform.childCount];
     items = new SlotClass[slots.Length];
 
-    InventoryUI.gameObject.SetActive(false);
+     InventoryUI.gameObject.SetActive(false);
 
     hotbarSlots = new GameObject[hotbarslotHolder.transform.childCount];
         for(int i=0;i<hotbarSlots.Length; i++)
@@ -71,6 +73,10 @@ public class InventoryManager : MonoBehaviour
             InventoryUI.gameObject.SetActive(!InventoryUI.activeSelf);
         }
 
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            ThrowItem();
+        }
 
         itemCursor.SetActive(IsMovingItem);
         itemCursor.transform.position = Input.mousePosition;
@@ -257,7 +263,44 @@ public class InventoryManager : MonoBehaviour
         return true;
   }
 
-public bool Remove(ItemsClass item, int quantity)
+    private void ThrowItem()
+    {
+        Debug.Log("ThrowItem called");
+
+        if (selectedItem == null)
+        {
+            Debug.Log("Selected item is null");
+            return;
+        }
+
+        if (selectedItem is ConsumableClass || selectedItem is MiscClass)
+        {
+            Remove(selectedItem, 1);
+
+            // Установите позицию создания на позицию игрока
+            Vector3 spawnPosition = transform.position; // Позиция игрока
+            GameObject itemObject = Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
+
+            SpriteRenderer spriteRenderer = itemObject.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = selectedItem.itemIcon;
+
+            Rigidbody2D rb = itemObject.GetComponent<Rigidbody2D>();
+            rb.gravityScale = 1;
+            rb.isKinematic = false;
+
+            // Определите направление броска
+            Vector2 throwDirection = transform.right; // Направление, в котором смотрит игрок
+            rb.AddForce(throwDirection * 5f, ForceMode2D.Impulse); // Убедитесь, что сила не слишком велика
+
+            // Вывод позиции в консоль для отладки
+            Debug.Log("Spawned Item Position: " + spawnPosition);
+        }
+    }
+
+
+
+
+    public bool Remove(ItemsClass item, int quantity)
 {
     int totalRemoved = 0;
     for (int i = 0; i < items.Length; i++)
@@ -429,4 +472,21 @@ private bool BeginItemMoveHalf()
         return null;
     }
     #endregion
+
+    private void OnDrawGizmos()
+    {
+        // Проверяем, если предмет выбрасывается
+        if (selectedItem != null)
+        {
+            // Устанавливаем цвет Gizmos
+            Gizmos.color = Color.red;
+
+            // Позиция, где будет создан предмет
+            Vector3 spawnPosition = transform.position + new Vector3(0, 1, 0);
+
+            // Рисуем сферу в позиции создания предмета
+            Gizmos.DrawSphere(spawnPosition, 0.2f); // 0.2f - радиус сферы
+        }
+    }
+
 }
