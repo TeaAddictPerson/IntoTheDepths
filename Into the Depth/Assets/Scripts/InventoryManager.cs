@@ -277,8 +277,10 @@ public class InventoryManager : MonoBehaviour
         {
             Remove(selectedItem, 1);
 
-            // Установите позицию создания на позицию игрока
-            Vector3 spawnPosition = transform.position; // Позиция игрока
+           
+            Vector3 spawnPosition = transform.position; 
+            spawnPosition.z = 10; 
+
             GameObject itemObject = Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
 
             SpriteRenderer spriteRenderer = itemObject.GetComponent<SpriteRenderer>();
@@ -288,14 +290,14 @@ public class InventoryManager : MonoBehaviour
             rb.gravityScale = 1;
             rb.isKinematic = false;
 
-            // Определите направление броска
-            Vector2 throwDirection = transform.right; // Направление, в котором смотрит игрок
-            rb.AddForce(throwDirection * 5f, ForceMode2D.Impulse); // Убедитесь, что сила не слишком велика
+   
+            Vector2 throwDirection = transform.right; 
+            rb.AddForce(throwDirection * 5f, ForceMode2D.Impulse); 
 
-            // Вывод позиции в консоль для отладки
             Debug.Log("Spawned Item Position: " + spawnPosition);
         }
     }
+
 
 
 
@@ -475,17 +477,14 @@ private bool BeginItemMoveHalf()
 
     private void OnDrawGizmos()
     {
-        // Проверяем, если предмет выбрасывается
         if (selectedItem != null)
         {
-            // Устанавливаем цвет Gizmos
             Gizmos.color = Color.red;
 
-            // Позиция, где будет создан предмет
+
             Vector3 spawnPosition = transform.position + new Vector3(0, 1, 0);
 
-            // Рисуем сферу в позиции создания предмета
-            Gizmos.DrawSphere(spawnPosition, 0.2f); // 0.2f - радиус сферы
+            Gizmos.DrawSphere(spawnPosition, 0.2f); 
         }
     }
 

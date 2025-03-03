@@ -72,7 +72,6 @@ public class PlayerScript : MonoBehaviour
 
  
         isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
-        Debug.Log($"IsOnSurface: {isOnSurface}, Player Y Position: {transform.position.y}, Water Surface Y Position: {waterSurfacePoint.position.y}");
 
         bool isInWater = transform.position.y <= waterSurfacePoint.position.y;
 
