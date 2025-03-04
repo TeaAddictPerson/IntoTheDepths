@@ -52,6 +52,10 @@ public class PlayerScript : MonoBehaviour
 
     private bool isTakingDamage = false;
 
+    private bool isAttachedToRay = false;
+    public Transform rayAttachPoint;
+    public Sprite attachedSprite;
+    private float defaultZPosition;
     void Start()
     {
         currentHealth = maxHealth;
@@ -70,7 +74,20 @@ public class PlayerScript : MonoBehaviour
             Input.GetAxisRaw("Vertical")
         ).normalized;
 
- 
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (isAttachedToRay)
+            {
+                DetachFromRay();
+            }
+            else
+            {
+                TryAttachToRay();
+            }
+        }
+
+
+
         isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
 
         bool isInWater = transform.position.y <= waterSurfacePoint.position.y;
@@ -135,7 +152,42 @@ public class PlayerScript : MonoBehaviour
         {
             rb.MovePosition(rb.position + direction * moveSpeed * Time.fixedDeltaTime);
         }
+
+        if (isAttachedToRay && rayAttachPoint != null)
+        {
+            transform.position = new Vector3(rayAttachPoint.position.x, rayAttachPoint.position.y, defaultZPosition);
+        }
     }
+
+    void TryAttachToRay()
+    {
+        Ray ray = FindObjectOfType<Ray>(); 
+        if (ray != null)
+        {
+            isAttachedToRay = true;
+            rayAttachPoint = ray.transform;
+
+            rb.velocity = Vector2.zero;
+            rb.isKinematic = true;
+
+            animator.enabled = false;
+            GetComponent<SpriteRenderer>().sprite = attachedSprite;
+
+      
+            defaultZPosition = transform.position.z;
+            transform.position = new Vector3(rayAttachPoint.position.x, rayAttachPoint.position.y, defaultZPosition);
+        }
+    }
+
+    void DetachFromRay()
+    {
+        isAttachedToRay = false;
+        rayAttachPoint = null;
+
+        rb.isKinematic = false; 
+        animator.enabled = true; 
+    }
+
 
     private void ConsumeOxygen()
     {
@@ -290,6 +342,7 @@ public class PlayerScript : MonoBehaviour
     public void Die()
     {
         isDead = true;
+        DetachFromRay();
         animator.SetBool("IsDead", true);
         rb.velocity = Vector2.zero;
         moveSpeed = 0;
