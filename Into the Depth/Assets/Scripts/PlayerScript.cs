@@ -56,6 +56,9 @@ public class PlayerScript : MonoBehaviour
     public Transform rayAttachPoint;
     public Sprite attachedSprite;
     private float defaultZPosition;
+
+    private PickupItem nearbyItem;
+    private InventoryManager inventory;
     void Start()
     {
         currentHealth = maxHealth;
@@ -63,6 +66,7 @@ public class PlayerScript : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         rb.gravityScale = defaultGravityScale;
+        inventory = FindObjectOfType<InventoryManager>(); 
     }
 
     void Update()
@@ -84,6 +88,12 @@ public class PlayerScript : MonoBehaviour
             {
                 TryAttachToRay();
             }
+        }
+
+         if (Input.GetKeyDown(KeyCode.R) && nearbyItem != null)
+        {
+            nearbyItem.PickUpItem(inventory);
+            SetNearbyItem(null); 
         }
 
 
@@ -161,23 +171,32 @@ public class PlayerScript : MonoBehaviour
 
     void TryAttachToRay()
     {
-        Ray ray = FindObjectOfType<Ray>(); 
+        Ray ray = FindObjectOfType<Ray>();
         if (ray != null)
         {
-            isAttachedToRay = true;
-            rayAttachPoint = ray.transform;
+        float attachRadius = 2.0f; 
+        float distanceToRay = Vector2.Distance(transform.position, ray.transform.position);
 
-            rb.velocity = Vector2.zero;
-            rb.isKinematic = true;
-
-            animator.enabled = false;
-            GetComponent<SpriteRenderer>().sprite = attachedSprite;
-
-      
-            defaultZPosition = transform.position.z;
-            transform.position = new Vector3(rayAttachPoint.position.x, rayAttachPoint.position.y, defaultZPosition);
+        if (distanceToRay > attachRadius)
+        {
+            Debug.Log("Скат слишком далеко, нельзя прицепиться!");
+            return;
         }
-    }
+
+        isAttachedToRay = true;
+        rayAttachPoint = ray.transform;
+
+        rb.velocity = Vector2.zero;
+        rb.isKinematic = true;
+
+        animator.enabled = false;
+        GetComponent<SpriteRenderer>().sprite = attachedSprite;
+
+        defaultZPosition = transform.position.z;
+        transform.position = new Vector3(rayAttachPoint.position.x, rayAttachPoint.position.y, defaultZPosition);
+
+        }
+        }
 
     void DetachFromRay()
     {
@@ -385,5 +404,26 @@ public class PlayerScript : MonoBehaviour
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
+    }
+
+    public void SetNearbyItem(PickupItem item)
+    {
+        nearbyItem = item;
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Item"))
+        {
+            SetNearbyItem(other.GetComponent<PickupItem>());
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Item"))
+        {
+            SetNearbyItem(null);
+        }
     }
 }
