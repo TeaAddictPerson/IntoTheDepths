@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9295fb3f2117e4981d4ea4118b5b2f, type: 3}
+  m_Name: DrillRecipe
+  m_EditorClassIdentifier: 
+  inputItems:
+  - item: {fileID: 11400000, guid: f851ea5df2267994fb474512c8f6b1ce, type: 2}
+    quantity: 3
+  - item: {fileID: 11400000, guid: 18d0e363a295354458b0820bd756eefd, type: 2}
+    quantity: 5
+  - item: {fileID: 11400000, guid: 5a2c1dc2c9f0ec842a4495edb479ae7e, type: 2}
+    quantity: 1
+  outputItem:
+  - item: {fileID: 11400000, guid: b130a0cc2cbdc9142bf713e4824ec0b6, type: 2}
+    quantity: 1

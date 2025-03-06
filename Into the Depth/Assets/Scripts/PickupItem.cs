@@ -3,9 +3,9 @@ using System.Collections;
 
 public class PickupItem : MonoBehaviour
 {
-    public ItemsClass itemData; 
+    public ItemsClass itemData;
     public float pickupRadius = 2f;
-    private Vector3 initialPosition; 
+    private Vector3 initialPosition;
 
     private void Start()
     {
@@ -30,17 +30,16 @@ public class PickupItem : MonoBehaviour
 
     public void PickUpItem(InventoryManager inventory)
     {
-        if (inventory.Add(itemData, 1)) 
+        if (inventory.Add(itemData, 1))
         {
-            StartCoroutine(RespawnItem()); 
-            gameObject.SetActive(false); 
+            gameObject.SetActive(false);
+            Invoke(nameof(RespawnItem), 120f); 
         }
     }
 
-    private IEnumerator RespawnItem()
+    private void RespawnItem()
     {
-        yield return new WaitForSeconds(5);
-        gameObject.SetActive(true); 
-        transform.position = initialPosition; 
+        gameObject.SetActive(true);
+        transform.position = initialPosition;
     }
 }

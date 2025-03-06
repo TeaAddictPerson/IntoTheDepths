@@ -15,15 +15,21 @@ public class SwordFish : MonoBehaviour, IDamageable
     public float detectionRange = 5f;
     public float attackRange = 1f;
     public float attackCooldown = 2f;
-    public float knockbackForce = 2f; // Сила отплытия после атаки
-    public Transform waterSurfacePoint; // Точка поверхности воды
-    private float waterSurfaceY; // Y-координата поверхности воды
+    public float knockbackForce = 2f;
+    public Transform waterSurfacePoint;
+    private float waterSurfaceY;
 
     private float lastAttackTime;
     private Transform player;
     private bool isDead = false;
     private bool isKnockedBack = false;
-    private Vector2 lastMoveDirection; // Запоминаем последнее направление движения
+    private Vector2 lastMoveDirection;
+
+    [Header("Дроп предметов")]
+    public GameObject meatPrefab;
+    public GameObject bonePrefab;
+    public int meatDropAmount = 2;
+    public int boneDropAmount = 3;
 
     void Start()
     {
@@ -41,7 +47,7 @@ public class SwordFish : MonoBehaviour, IDamageable
 
         if (waterSurfacePoint != null)
         {
-            waterSurfaceY = waterSurfacePoint.position.y; // Запоминаем уровень воды
+            waterSurfaceY = waterSurfacePoint.position.y;
         }
         else
         {
@@ -59,11 +65,9 @@ public class SwordFish : MonoBehaviour, IDamageable
     void Update()
     {
         if (isDead || isKnockedBack) return;
-
         if (currentHealth <= 0 || player == null || animator == null) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
         var playerScript = player.GetComponent<PlayerScript>();
         if (playerScript != null && playerScript.isDead)
         {
@@ -88,7 +92,6 @@ public class SwordFish : MonoBehaviour, IDamageable
             animator.SetBool("IsRunning", false);
         }
 
-        // Ограничиваем движение выше поверхности воды
         if (transform.position.y > waterSurfaceY)
         {
             Vector3 newPosition = transform.position;
@@ -101,11 +104,7 @@ public class SwordFish : MonoBehaviour, IDamageable
     {
         Vector2 direction = (player.position - transform.position).normalized;
         rb.velocity = direction * moveSpeed;
-
-        // Запоминаем направление движения перед атакой
         lastMoveDirection = direction;
-
-        // Разворачиваем рыбу в сторону движения
         transform.localScale = new Vector3(Mathf.Sign(direction.x), 1, 1);
     }
 
@@ -123,20 +122,15 @@ public class SwordFish : MonoBehaviour, IDamageable
             playerScript.TakeDamage(1);
         }
 
-        yield return new WaitForSeconds(0.3f); // Ждем немного перед отплытием
-
+        yield return new WaitForSeconds(0.3f);
         StartCoroutine(KnockbackAfterAttack());
     }
 
     IEnumerator KnockbackAfterAttack()
     {
         isKnockedBack = true;
-        
-        // Рыба отплывает в том же направлении, в котором плыла перед атакой
         rb.velocity = lastMoveDirection * knockbackForce;
-
-        yield return new WaitForSeconds(0.5f); // Время отплытия
-
+        yield return new WaitForSeconds(0.5f);
         isKnockedBack = false;
     }
 
@@ -161,9 +155,26 @@ public class SwordFish : MonoBehaviour, IDamageable
 
         rb.velocity = Vector2.zero;
         rb.isKinematic = true;
-
         if (fishCollider != null)
             fishCollider.enabled = false;
+
+        DropLoot();
+        Destroy(gameObject, 1f);
+    }
+
+    void DropLoot()
+    {
+        SpawnDroppedItems(meatPrefab, meatDropAmount);
+        SpawnDroppedItems(bonePrefab, boneDropAmount);
+    }
+
+    void SpawnDroppedItems(GameObject itemPrefab, int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            Vector2 dropPosition = (Vector2)transform.position + Random.insideUnitCircle * 0.5f;
+            Instantiate(itemPrefab, dropPosition, Quaternion.identity);
+        }
     }
 
     void SetupDeathState()
