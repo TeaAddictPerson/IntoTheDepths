@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: 63590760cc766254fab9ca371ccefa98, type: 2}
-  amount: 2
+  amount: 1
 --- !u!60 &-6627254168965036770
 PolygonCollider2D:
   m_ObjectHideFlags: 0

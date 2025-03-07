@@ -173,9 +173,16 @@ public class SwordFish : MonoBehaviour, IDamageable
         for (int i = 0; i < amount; i++)
         {
             Vector2 dropPosition = (Vector2)transform.position + Random.insideUnitCircle * 0.5f;
-            Instantiate(itemPrefab, dropPosition, Quaternion.identity);
+            GameObject droppedItem = Instantiate(itemPrefab, dropPosition, Quaternion.identity);
+
+            DroppedItem droppedItemScript = droppedItem.GetComponent<DroppedItem>();
+            if (droppedItemScript == null)
+            {
+                Debug.LogError($"DroppedItem отсутствует на {itemPrefab.name}!");
+            }
         }
     }
+
 
     void SetupDeathState()
     {

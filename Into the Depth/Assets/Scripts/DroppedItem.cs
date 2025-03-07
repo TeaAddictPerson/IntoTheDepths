@@ -2,24 +2,41 @@
 
 public class DroppedItem : MonoBehaviour
 {
-    public ItemsClass itemData; 
+    public ItemsClass itemData;
     public int amount = 1;
 
-    void Start()
+    private void Start()
     {
-        gameObject.tag = "Item"; 
+        gameObject.tag = "Item";
+        if (GetComponent<Collider2D>() == null)
+        {
+            Debug.LogError($"DroppedItem на {gameObject.name} не имеет Collider2D!");
+        }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            InventoryManager inventory = other.GetComponent<InventoryManager>();
+            InventoryManager inventory = FindObjectOfType<InventoryManager>(); 
             if (inventory != null && itemData != null)
             {
-                inventory.Add(itemData, amount); 
-                Destroy(gameObject); 
+                bool added = inventory.Add(itemData, amount);
+                if (added)
+                {
+                    Debug.Log($"Игрок подобрал {itemData.itemName} x{amount}");
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    Debug.Log("Инвентарь заполнен!");
+                }
+            }
+            else
+            {
+                Debug.LogError("InventoryManager не найден или itemData = null!");
             }
         }
     }
+
 }
