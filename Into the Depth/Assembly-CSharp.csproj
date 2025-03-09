@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\Quit.cs" />
     <Compile Include="Assets\Scripts\Ray.cs" />
     <Compile Include="Assets\Scripts\SceneTransition.cs" />
+    <Compile Include="Assets\Scripts\SeaBunny.cs" />
     <Compile Include="Assets\Scripts\SlotClass.cs" />
     <Compile Include="Assets\Scripts\SqlConnect.cs" />
     <Compile Include="Assets\Scripts\SwordFish.cs" />
