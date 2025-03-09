@@ -9,12 +9,14 @@ public class SeaBunny : MonoBehaviour
     private int currentWaypointIndex = 0;
     private bool FacingRight = false;
     private float zPosition = 10f;
-    public float pickUpRadius = 2f;  // Радиус поиска предметов
-    public int seaweedGoal = 2; // Количество водорослей, которое нужно съесть
-    private int seaweedEaten = 0; // Количество съеденных водорослей
-    public Transform player; // Игрок, за которым заяц будет следовать
-    private bool isFollowingPlayer = false; // Флаг, который указывает, следует ли заяц за игроком
-    public float followingDistance = 3f; // Расстояние, на котором заяц будет следовать за игроком
+    public float pickUpRadius = 2f;  
+    public int seaweedGoal = 2; 
+    private int seaweedEaten = 0; 
+    public Transform player; 
+    private bool isFollowingPlayer = false; 
+    public float followingDistance = 1f;
+    public Transform waterSurfacePoint;
+    private float waterSurfaceY;
 
     void Start()
     {
@@ -28,11 +30,18 @@ public class SeaBunny : MonoBehaviour
     {
         if (isFollowingPlayer)
         {
-            FollowPlayer(); // Если заяц должен следовать за игроком
+            FollowPlayer();
         }
         else
         {
-            FindAndPickUpSeaweed(); // Ищем водоросли
+            FindAndPickUpSeaweed(); 
+        }
+
+        if (transform.position.y > waterSurfaceY)
+        {
+            Vector3 newPosition = transform.position;
+            newPosition.y = waterSurfaceY;
+            transform.position = newPosition;
         }
     }
 
@@ -87,18 +96,18 @@ public class SeaBunny : MonoBehaviour
 
     private void FindAndPickUpSeaweed()
     {
-        // Ищем все объекты с компонентом Rigidbody2D (падающие предметы)
+
         Rigidbody2D[] droppedItems = FindObjectsOfType<Rigidbody2D>();
 
         foreach (Rigidbody2D itemRb in droppedItems)
         {
             GameObject item = itemRb.gameObject;
 
-            // Проверяем, есть ли у предмета SpriteRenderer
+       
             SpriteRenderer spriteRenderer = item.GetComponent<SpriteRenderer>();
             if (spriteRenderer == null) continue;
 
-            // Проверяем, является ли этот предмет водорослями (по спрайту)
+           
             if (IsSeaweed(spriteRenderer.sprite))
             {
                 float distance = Vector2.Distance(transform.position, item.transform.position);
@@ -114,31 +123,46 @@ public class SeaBunny : MonoBehaviour
 
     private bool IsSeaweed(Sprite itemSprite)
     {
-        // Тут можно проверить по конкретному спрайту водорослей
-        return itemSprite != null && itemSprite.name.Contains("small_stuff_5"); // Подставь имя спрайта водорослей
+       
+        return itemSprite != null && itemSprite.name.Contains("small_stuff_5"); 
     }
+
+    private HashSet<GameObject> eatenSeaweed = new HashSet<GameObject>();
 
     private IEnumerator MoveToAndPickUp(GameObject item)
     {
+        if (eatenSeaweed.Contains(item))
+        {
+            Debug.Log("Этот объект уже съеден, пропускаем его.");
+            yield break;
+        }
+
+        Debug.Log("Заяц двигается к объекту: " + item.name + " на позицию: " + item.transform.position);
+
         while (item != null && Vector2.Distance(transform.position, item.transform.position) > 0.1f)
         {
             transform.position = Vector2.MoveTowards(transform.position, item.transform.position, speed * Time.deltaTime);
             yield return null;
         }
 
-        if (item != null) // Проверяем, существует ли объект перед уничтожением
+        if (item != null && !eatenSeaweed.Contains(item))
         {
+            Debug.Log("Заяц достигает объекта и уничтожает его: " + item.name); 
+            eatenSeaweed.Add(item);
             Destroy(item);
-            seaweedEaten++; // Увеличиваем счетчик съеденных водорослей
-            Debug.Log("Заяц съел водоросли! Всего съедено: " + seaweedEaten);
+            seaweedEaten++; 
+            Debug.Log("Заяц съел водоросли! Всего съедено: " + seaweedEaten); 
 
-            // Если заяц съел достаточно водорослей, начинает следовать за игроком
             if (seaweedEaten >= seaweedGoal)
             {
                 isFollowingPlayer = true;
-                speed = 3f; // Увеличиваем скорость после того, как заяц приручен
+                speed = 3f; 
                 Debug.Log("Заяц съел достаточно водорослей, теперь он будет следовать за игроком.");
             }
+        }
+        else
+        {
+            Debug.Log("Объект водорослей был уничтожен или не найден в процессе."); 
         }
     }
 
@@ -146,10 +170,10 @@ public class SeaBunny : MonoBehaviour
     {
         if (player != null)
         {
-            // Рассчитываем расстояние между зайцем и игроком
+           
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-            // Если заяц слишком близко, отступаем
+     
             if (distanceToPlayer > followingDistance)
             {
                 transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
