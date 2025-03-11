@@ -475,6 +475,42 @@ private bool BeginItemMoveHalf()
     }
     #endregion
 
+    public void UseSelectedItem()
+    {
+        if (selectedItem == null) return;
+
+        PlayerScript player = FindObjectOfType<PlayerScript>(); 
+        SlotClass selectedSlot = items[selectedSlotIndex + (hotbarSlots.Length * 3)];
+
+        if (selectedItem is ConsumableClass consumable)
+        {
+            player.currentHealth += (int)consumable.healthAdded;
+            player.currentHealth = Mathf.Clamp(player.currentHealth, 0, player.maxHealth); 
+            player.healthBar.fillAmount = (float)player.currentHealth / player.maxHealth; 
+
+            Debug.Log($"Восстановлено {consumable.healthAdded} HP. Текущее HP: {player.currentHealth}");
+
+            Remove(selectedItem, 1); 
+        }
+        else if (selectedItem is ToolClass tool)
+        {
+            if (selectedItem.itemName == "flippers")
+            {
+                player.moveSpeed = 3f; 
+                Remove(selectedItem, 1);
+            }
+            else if (selectedItem.itemName == "oxygen")
+            {
+                player.StopOxygenConsumption(); 
+                Remove(selectedItem, 1); 
+            }
+        }
+
+        RefreshUI();
+    }
+
+
+
     private void OnDrawGizmos()
     {
         if (selectedItem != null)

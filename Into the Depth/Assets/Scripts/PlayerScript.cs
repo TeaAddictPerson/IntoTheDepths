@@ -52,6 +52,8 @@ public class PlayerScript : MonoBehaviour
 
     private bool isTakingDamage = false;
 
+    private bool isOxygenConsumptionStopped = false;
+
     private bool isAttachedToRay = false;
     public Transform rayAttachPoint;
     public Sprite attachedSprite;
@@ -90,13 +92,16 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-         if (Input.GetKeyDown(KeyCode.R) && nearbyItem != null)
+        if (Input.GetKeyDown(KeyCode.R) && nearbyItem != null)
         {
             nearbyItem.PickUpItem(inventory);
-            SetNearbyItem(null); 
+            SetNearbyItem(null);
         }
 
-
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            inventory.UseSelectedItem();
+        }
 
         isOnSurface = transform.position.y >= waterSurfacePoint.position.y;
 
@@ -106,7 +111,6 @@ public class PlayerScript : MonoBehaviour
         {
             direction.y = 0;
         }
-
 
         if (isOnSurface)
         {
@@ -155,6 +159,7 @@ public class PlayerScript : MonoBehaviour
 
         animator.SetBool("isOnSurface", isOnSurface);
     }
+
 
     void FixedUpdate()
     {
@@ -210,6 +215,8 @@ public class PlayerScript : MonoBehaviour
 
     private void ConsumeOxygen()
     {
+        if (isOxygenConsumptionStopped) return; 
+
         if (currentOxygen > 0)
         {
             currentOxygen -= oxygenConsumptionRate * Time.deltaTime;
@@ -409,6 +416,12 @@ public class PlayerScript : MonoBehaviour
     public void SetNearbyItem(PickupItem item)
     {
         nearbyItem = item;
+    }
+
+    public void StopOxygenConsumption()
+    {
+        Debug.Log("Кислородный баллон использован, расход кислорода остановлен!");
+        isOxygenConsumptionStopped = true; 
     }
 
     void OnTriggerEnter2D(Collider2D other)
